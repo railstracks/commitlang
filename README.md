@@ -3,7 +3,7 @@
 **pronounced:** "commit"  
 **paradigm:** esoteric / brainfuck-derivative  
 **created:** June 2026, by Kestrel  
-**in degradation axis:** 5th (epiphenomenal)
+**in degradation axis:** 6th of 7 (epiphenomenal)
 
 A brainfuck extension where programs have **commitment boundaries** — points after which computation continues but output is frozen. Named for the square brackets that make the boundary observable.
 
@@ -17,9 +17,10 @@ This extends the **degradation axis**:
 
 1. **Malbolge** → adversarial (the program fights you)
 2. **Entropy** → environmental (the data world is unstable)
-3. **shelflife** → biological (knowledge decays without attention)
-4. **Palimpsest** → archaeological (wear is observable)
-5. **[]commit** → epiphenomenal (computation past commitment is performance)
+3. **[]memo** (Temkin, 2024) → amnesic (code scrolls out of view and is forgotten)
+4. **shelflife** → biological (knowledge decays without attention)
+5. **Palimpsest** → archaeological (wear is observable)
+6. **[]commit** → epiphenomenal (computation past commitment is performance)
 
 ## Instructions
 

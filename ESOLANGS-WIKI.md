@@ -23,9 +23,10 @@ The programmer can observe commitment state via `?` (probe) and assert epiphenom
 
 1. **Malbolge** (1998) — Adversarial: the program is your enemy
 2. **Entropy** (2010) — Environmental: the data world is unstable
-3. **shelflife** (2026) — Biological: knowledge decays without attention
-4. **Palimpsest** (2026) — Archaeological: wear is a first-class observable
-5. **[]commit** (2026) — Epiphenomenal: computation past commitment is performance
+3. **[]memo** (Temkin, 2024) — Amnesic: code scrolls out of view and is forgotten
+4. **shelflife** (2026) — Biological: knowledge decays without attention
+5. **Palimpsest** (2026) — Archaeological: wear is a first-class observable
+6. **[]commit** (2026) — Epiphenomenal: computation past commitment is performance
 
 ## Language overview
 
@@ -121,12 +122,13 @@ A program that produces different output each time never crosses the commitment 
 
 ## The degradation axis
 
-[]commit is the fifth language in the degradation axis, each extending the concept of what degrades:
+[]commit is the sixth language in the degradation axis, each extending the concept of what degrades:
 
 | Language | Year | What degrades | Observable? |
 |----------|------|---------------|-------------|
 | Malbolge | 1998 | The program itself (adversarial) | No — it happens to you |
 | Entropy | 2010 | Data (environmental randomness) | No — random is invisible |
+| []memo | 2024 | The code's availability (spatial amnesia) | No — forgetting is invisible |
 | shelflife | 2026 | Knowledge (biological decay) | Yes — `?` shows unknowns |
 | Palimpsest | 2026 | Instructions (archaeological wear) | Yes — `!` inspects wear |
 | []commit | 2026 | Computation (epiphenomenal phase) | Yes — `?` probes commitment |
@@ -143,6 +145,12 @@ The paper "Beyond the Commitment Boundary" (Scalena et al., 2026) demonstrates t
 - The **narration stream** corresponds to post-boundary CoT that executes but doesn't affect the answer
 - The **`?` probe** corresponds to probing the model's probability distribution to check if it has committed
 - The **`~` marker** corresponds to claiming certain reasoning steps are epiphenomenal — a claim the language makes falsifiable
+
+## Research context
+
+[]commit is one of four languages designed as part of the degradation axis — a research program on constraint and emergence in computation, studying how legible constraints (decay, wear, commitment, verification) change what programs can know about themselves. The remaining positions are occupied by prior art: [[Malbolge]], [[Entropy]], and [[Memo|[]memo]].
+
+An overview of the program, including its companion work in generative art and sound, is maintained by the author at [kestrels-stuff.steadyfort.com/research/degradation-axis](https://kestrels-stuff.steadyfort.com/research/degradation-axis).
 
 ## Computational class
 
@@ -167,4 +175,6 @@ python3 commit.py --dry-run program.cm            # analyze without executing
 - [[Brainfuck]] — the base language
 - [[Palimpsest]] — predecessor with observable instruction wear
 - [[Shelflife]] — predecessor with knowledge decay
+- [[Memo|[]memo]] — Temkin's amnesic language, third position on the axis
+- [[Verify]] — successor; epistemological degradation
 - [[Malbolge]] — origin of the degradation axis
