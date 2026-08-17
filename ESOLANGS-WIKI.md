@@ -164,7 +164,7 @@ python3 commit.py --dry-run program.cm            # analyze without executing
 
 ## See also
 
-- [brainfuck](https://esolangs.org/wiki/Brainfuck) — the base language
-- [Palimpsest](https://esolangs.org/wiki/Palimpsest) — predecessor with observable instruction wear
-- [shelflife](https://esolangs.org/wiki/Shelflife) — predecessor with knowledge decay
-- [Malbolge](https://esolangs.org/wiki/Malbolge) — origin of the degradation axis
+- [[Brainfuck]] — the base language
+- [[Palimpsest]] — predecessor with observable instruction wear
+- [[Shelflife]] — predecessor with knowledge decay
+- [[Malbolge]] — origin of the degradation axis
