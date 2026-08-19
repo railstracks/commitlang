@@ -54,7 +54,7 @@ python3 commit.py --dry-run program.cm           # analyze without executing
 
 ## Examples
 
-A full index of the 19 example programs, with explanations, is in [examples/README.md](examples/README.md). The highlights:
+A full index of the 20 example programs, with explanations, is in [examples/README.md](examples/README.md). The highlights:
 
 ### Commitment on repeated output
 

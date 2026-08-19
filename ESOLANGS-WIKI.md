@@ -166,7 +166,7 @@ The commitment boundary adds a **phase transition** to computation: every []comm
 
 ## Implementation
 
-A Python reference interpreter is available at [github.com/railstracks/commitlang](https://github.com/railstracks/commitlang), along with 19 example programs (indexed in [`examples/README.md`](https://github.com/railstracks/commitlang/blob/main/examples/README.md)). Key flags:
+A Python reference interpreter is available at [github.com/railstracks/commitlang](https://github.com/railstracks/commitlang), along with 20 example programs (indexed in [`examples/README.md`](https://github.com/railstracks/commitlang/blob/main/examples/README.md)). Key flags:
 
 ```bash
 python3 commit.py program.cm                    # K=3 (default)
