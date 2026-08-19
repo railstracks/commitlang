@@ -27,6 +27,7 @@ The programmer can observe commitment state via `?` (probe) and assert epiphenom
 4. **shelflife** (2026) — Biological: knowledge decays without attention
 5. **Palimpsest** (2026) — Archaeological: wear is a first-class observable
 6. **[]commit** (2026) — Epiphenomenal: computation past commitment is performance
+7. **verify** (2026) — Epistemological: unverified state outputs confidently wrong values
 
 ## Language overview
 
@@ -48,7 +49,7 @@ The commitment boundary is detected automatically:
 2. If the output value is unchanged for K consecutive `.` instructions, the program crosses the commitment boundary
 3. K is a runtime parameter (default: 3), configurable via `--stability`
 
-**Important**: The boundary is detected from the program's own behavior, not declared by the programmer. It's a discoverable property of execution.
+**Important**: The boundary is detected from the program's own behavior, not declared by the programmer. It's a discoverable property of execution. Detection is also retrospective: the `.` that observes the K-th repeat is itself part of the committed answer — the boundary is only ever seen after it has been crossed.
 
 ### Post-boundary execution
 
@@ -136,8 +137,9 @@ The canonical example is fizzbuzz — included in the reference implementation a
 | shelflife | 2026 | Knowledge (biological decay) | Yes — expired values read as `?` |
 | Palimpsest | 2026 | Instructions (archaeological wear) | Yes — `!` inspects wear |
 | []commit | 2026 | Computation (epiphenomenal phase) | Yes — `?` probes commitment |
+| verify | 2026 | Verification state (epistemological) | Yes — `?` probes dirty/clean; `.` on dirty outputs the stale verified value |
 
-Each step makes degradation more legible: from invisible (Malbolge) to self-aware ([]commit).
+Each step makes degradation more legible: from invisible (Malbolge) to self-aware ([]commit, verify).
 
 ## Relationship to the commitment boundary paper
 
@@ -158,13 +160,13 @@ An overview of the program, including its companion work in generative art and s
 
 ## Computational class
 
-[]commit is a strict superset of brainfuck (all brainfuck programs are valid []commit programs). Since brainfuck is Turing-complete, []commit is also Turing-complete. Programs that produce varying output never cross the commitment boundary and behave identically to brainfuck.
+[]commit is a syntactic superset of brainfuck: every brainfuck program is a valid []commit program, and since brainfuck is Turing-complete, so is []commit (the boundary never halts computation — post-commitment execution continues, and programs can always avoid commitment by never repeating an output K times). The one behavioral divergence: brainfuck programs whose output repeats a value K consecutive times will cross the boundary, and further output routes to narration. Programs that produce varying output never cross the commitment boundary and behave identically to brainfuck.
 
 The commitment boundary adds a **phase transition** to computation: every []commit program either never commits (behaving as brainfuck) or has a genuine phase followed by an epiphenomenal phase. This is a structural property, not a behavioral one.
 
 ## Implementation
 
-A Python interpreter is available. Key flags:
+A Python reference interpreter is available at [github.com/railstracks/commitlang](https://github.com/railstracks/commitlang), along with 19 example programs (indexed in [`examples/README.md`](https://github.com/railstracks/commitlang/blob/main/examples/README.md)). Key flags:
 
 ```bash
 python3 commit.py program.cm                    # K=3 (default)
@@ -173,6 +175,8 @@ python3 commit.py --narration program.cm        # append narration to stdout (re
 python3 commit.py --verbose program.cm            # show commitment events
 python3 commit.py --dry-run program.cm            # analyze without executing
 ```
+
+The commitment report shows both streams by default. Exit codes distinguish outcomes: 0 = clean run, 1 = interpreter error, 2 = premature epiphenomenon assertion (a falsified `~`).
 
 ## See also
 
