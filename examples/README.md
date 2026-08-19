@@ -1,22 +1,22 @@
 # []commit — Examples
 
-Run with: `python3 commit.py <file> --narration` (add `--verbose` for boundary events)
+Run with: `python3 commit.py <file>` — the commitment report shows both streams by default. Add `--narration` to append the narration to stdout after the committed answer (full record).
 
 ## Core demonstrations
 
 1. **simple_commit.cm** — prints `IJK`; changing output, never commits. Plain brainfuck behavior.
-2. **commit_demo.cm** — `A`, then `B`, then `C`s; commits on the third `C`. Shows the boundary landing mid-stream.
-3. **signature.cm** — the program's signature move: commits on `AAAA`, probes with `?`, prints `1` in narration, then correctly places `~` post-boundary.
-4. **verify.cm** — prints `VVVV` (committed), then `ERIFIED` in narration. The word VERIFY, split exactly at its own commitment boundary.
+2. **commit_demo.cm** — sets the cell to 'I', prints it four times, commits on the fourth. A trailing `+` computes but is never output. Narration empty.
+3. **signature.cm** — the program's signature move: commits on `AAAA`, probes with `?`, places `~` post-boundary (a no-op — correctly predicted), then prints `1` in narration.
+4. **verify.cm** — prints `V` four times (committing on the fourth), then spells `ERIFIED` in narration. The full record (`--narration`) reads `VVVVERIFIED`: one word, half of it real, half of it performance.
 5. **dual_phase.cm** — genuine phase only (`FK`, never commits). Two characters, all substance.
 6. **identity_crisis.cm** — never commits; all output genuine. The other legitimate identity: pure deliberation.
 
 ## Probing (`?`)
 
-7. **probe.cm** — commits on repeated output, then `?` returns 1 in narration.
-8. **probe_demo.cm** — probing with multi-cell setup.
+7. **probe.cm** — commits on `CCCC`, then `?` sets the cell to 1; `+32` renders it as `!` in narration.
+8. **probe_demo.cm** — multi-cell setup (3×8=24), invisible control-char output; probes pre-commitment (`?` returns 0) and never commits.
 9. **self_aware.cm** — after commitment, uses `?` to output `1` (the committed flag) to the narration stream.
-10. **commit_and_probe.cm** — compute (5×13=65=`A`), commit on repeated `A`, then probe.
+10. **commit_and_probe.cm** — compute (5×13=65=`A`), commit on repeated `A`, then probe; narration echoes `A`.
 
 ## The `~` marker
 

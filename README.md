@@ -47,7 +47,7 @@ All standard brainfuck instructions, plus:
 ```bash
 python3 commit.py program.cm                    # run with K=3 (default)
 python3 commit.py --stability 5 program.cm      # run with K=5
-python3 commit.py --narration program.cm        # show epiphenomenal narration
+python3 commit.py --narration program.cm        # append narration to stdout (report shows it either way)
 python3 commit.py --verbose program.cm           # show commitment events
 python3 commit.py --dry-run program.cm           # analyze without executing
 ```

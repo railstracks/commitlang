@@ -169,7 +169,7 @@ A Python interpreter is available. Key flags:
 ```bash
 python3 commit.py program.cm                    # K=3 (default)
 python3 commit.py --stability 5 program.cm      # K=5
-python3 commit.py --narration program.cm          # show narration stream
+python3 commit.py --narration program.cm        # append narration to stdout (report shows it either way)
 python3 commit.py --verbose program.cm            # show commitment events
 python3 commit.py --dry-run program.cm            # analyze without executing
 ```

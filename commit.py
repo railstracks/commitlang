@@ -276,7 +276,7 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true',
                        help='Show commitment events and boundary info')
     parser.add_argument('--narration', action='store_true',
-                       help='Show epiphenomenal narration after committed output')
+                       help='Include epiphenomenal narration in stdout, after the committed answer')
     args = parser.parse_args()
 
     program = load_program(args.program)
@@ -316,14 +316,12 @@ def main():
         verbose=args.verbose,
     )
 
-    # Output the committed answer
+    # Output the committed answer (stdout stays pipeable: just the answer)
     print(committed, end='')
 
-    # Optionally show narration
+    # --narration: include the epiphenomenal stream in stdout after the answer
     if args.narration and narration:
-        print(f"\n--- Epiphenomenal narration ---", file=sys.stderr)
-        print(narration, end='', file=sys.stderr)
-        print(file=sys.stderr)
+        print(narration, end='')
 
     # Meta report
     print(f"\n--- Commitment report ---", file=sys.stderr)
@@ -338,7 +336,7 @@ def main():
               f"(pc={meta['boundary_position']})", file=sys.stderr)
         print(f"Post-commitment steps: {meta['total_steps'] - meta['commitment_step'] - 1}",
               file=sys.stderr)
-        print(f"Narration length: {len(narration)} chars", file=sys.stderr)
+        print(f"Narration ({len(narration)} chars): {narration!r}", file=sys.stderr)
     else:
         print(f"Never committed (all output was genuine)", file=sys.stderr)
 
