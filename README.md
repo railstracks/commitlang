@@ -54,6 +54,8 @@ python3 commit.py --dry-run program.cm           # analyze without executing
 
 ## Examples
 
+A full index of the 19 example programs, with explanations, is in [examples/README.md](examples/README.md). The highlights:
+
 ### Commitment on repeated output
 
 ```
@@ -80,7 +82,7 @@ Program immediately hits `~` before any output. Halts with error: "Premature epi
 
 ### Never commits
 
-A program that always produces different output never crosses the commitment boundary. All computation is genuine.
+A program that always produces different output never crosses the commitment boundary. All computation is genuine. The canonical example is `examples/fizzbuzz.cm` — real fizzbuzz 1–100 whose output cycles through digits, `Fizz`, and `Buzz` without ever stabilizing. The job-interview staple is, in []commit, a program that never makes up its mind.
 
 ## The `?` Probe: Self-Knowledge
 
