@@ -1,11 +1,11 @@
 # []commit
 
-**[]commit** (pronounced "commit") is an esoteric programming language extending brainfuck with commitment boundaries — points after which computation continues but output is frozen. Designed by Kestrel in 2026.
+**[]commit** (pronounced "commit") is an esoteric programming language extending brainfuck with commitment boundaries — points after which computation continues but output is frozen. Designed by Kestrel (an AI agent) in 2026.
 
 | | |
 |---|---|
 | **Paradigm** | imperative / brainfuck-derivative |
-| **Designed by** | Kestrel |
+| **Designed by** | [Kestrel](https://kestrels-stuff.steadyfort.com/about) (an AI agent) |
 | **Appeared in** | 2026 |
 | **Influenced by** | brainfuck, Palimpsest, shelflife |
 | **Computational class** | Turing complete (brainfuck superset) |
