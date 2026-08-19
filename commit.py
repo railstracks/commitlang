@@ -8,13 +8,16 @@ An esoteric programming language extending brainfuck with:
        If reached pre-boundary, program HALTS (premature commitment assertion).
        If reached post-boundary, it's a no-op.
 
-The commitment boundary is detected automatically: when the output tape
-remains unchanged for K consecutive '.' instructions, the program has
+The commitment boundary is detected automatically: when an output value
+repeats K consecutive times (K = --stability, default 3), the program has
 committed. After commitment, '.' instructions write to a narration stream
-(stderr by default) instead of the committed output.
+instead of the committed output — shown in the commitment report, and
+appended to stdout with --narration.
 
 Post-boundary execution continues normally — data tape changes, loops,
-and probes all work. Only output is frozen.
+and probes all work. The boundary changes exactly three instructions:
+'.' (where output goes), '?' (what the probe returns), and '~' (assert
+vs. no-op). Everything else executes identically in both phases.
 
 This operationalizes the finding from Scalena et al. (arXiv 2606.13603):
 LLMs have a commitment boundary after which reasoning is epiphenomenal —
@@ -23,16 +26,21 @@ it executes but doesn't causally change the final answer.
 Usage:
     python3 commit.py program.cm                    # run with default K=3
     python3 commit.py --stability 5 program.cm      # run with K=5
-    python3 commit.py --dry-run program.cm          # don't commit (show what would happen)
+    python3 commit.py --narration program.cm        # append narration to stdout
     python3 commit.py --verbose program.cm          # show commitment events
-    python3 commit.py --seed N program.cm           # set random seed for , instruction
+    python3 commit.py --dry-run program.cm          # analyze without executing
 
-The degradation axis:
-    Malbolge  → adversarial (the program fights you)
-    Entropy   → environmental (the data world is unstable)
-    shelflife → biological (knowledge decays without attention)
-    Palimpsest → archaeological (wear is observable)
-    []commit  → epiphenomenal (computation past commitment is performance)
+Exit codes: 0 = clean run, 1 = interpreter error, 2 = premature epiphenomenon
+assertion (the program's '~' claim was falsified).
+
+The degradation axis (this language is position 6 of 7):
+    Malbolge   → adversarial (the program fights you), 1998
+    Entropy    → environmental (the data world is unstable), 2010
+    []memo     → amnesic (code scrolls out of view), Temkin 2024
+    shelflife  → biological (knowledge decays without attention), 2026
+    Palimpsest → archaeological (wear is observable), 2026
+    []commit   → epiphenomenal (computation past commitment is performance), 2026
+    verify     → epistemological (dirty vs. clean state), 2026
 """
 
 import sys
@@ -68,17 +76,23 @@ def match_brackets(program):
     return pairs
 
 
-def run(program, stability=3, dry_run=False, seed=None, verbose=False):
+def run(program, stability=3, verbose=False):
     """
     Execute a []commit program.
 
-    Returns (committed_output, narration_output, meta) where meta is a dict
-    with commitment_step, total_steps, hit_limit, boundary_position.
-    """
-    if seed is not None:
-        import random
-        random.seed(seed)
+    Returns (committed_output, narration_output, meta) where meta holds:
+      committed               — bool: boundary was crossed
+      commitment_step         — step index of the boundary (None if never)
+      boundary_position       — pc of the boundary-crossing '.'
+      total_steps             — steps executed
+      hit_limit               — bool: execution cap reached
+      premature_epiphenomenon — bool: '~' reached pre-boundary (halts)
+      premature_pc            — pc of the falsified '~' (None otherwise)
 
+    Semantics note: the '.' that detects the boundary (the K-th repeat)
+    is itself committed — detection is retrospective, like the LLM finding
+    it operationalizes. The first post-boundary '.' opens narration.
+    """
     instructions = list(program)
     brackets = match_brackets(instructions)
 
@@ -90,17 +104,16 @@ def run(program, stability=3, dry_run=False, seed=None, verbose=False):
     # Commitment state
     committed = False
     commitment_step = None
-    stability_counter = 0   # consecutive unchanged '.' outputs
-    last_output_snapshot = None
+    boundary_position = None  # pc of the '.' that crossed the boundary
+    stability_counter = 0   # consecutive repeats of the last output value
+    last_output_value = None
 
     # Output streams
     committed_output = []    # Pre-boundary output (the "answer")
     narration_output = []    # Post-boundary output (epiphenomenal "thinking")
-    last_committed_dot_value = None  # For stabilization tracking
 
     max_steps = 10_000_000
     steps = 0
-    boundary_position = None  # PC position where boundary was crossed
 
     def ensure_cell():
         nonlocal tape, dp
@@ -113,35 +126,57 @@ def run(program, stability=3, dry_run=False, seed=None, verbose=False):
     while pc < len(instructions) and steps < max_steps:
         cmd = instructions[pc]
 
-        # ── Pre-boundary execution (genuine computation) ──────────
+        # ── Phase-independent execution ────────────────────────────
+        # These seven instructions behave identically before and after
+        # the boundary. The boundary changes exactly three instructions:
+        # '.', '?', and '~' below.
 
-        if not committed:
-            if cmd == '>':
-                dp += 1
-                ensure_cell()
-            elif cmd == '<':
-                dp -= 1
-                ensure_cell()
-            elif cmd == '+':
-                ensure_cell()
-                tape[dp] = (tape[dp] + 1) % 256
-            elif cmd == '-':
-                ensure_cell()
-                tape[dp] = (tape[dp] - 1) % 256
-            elif cmd == '.':
-                ensure_cell()
-                ch = chr(tape[dp] % 256)
-                committed_output.append(ch)
+        if cmd == '>':
+            dp += 1
+            ensure_cell()
+        elif cmd == '<':
+            dp -= 1
+            ensure_cell()
+        elif cmd == '+':
+            ensure_cell()
+            tape[dp] = (tape[dp] + 1) % 256
+        elif cmd == '-':
+            ensure_cell()
+            tape[dp] = (tape[dp] - 1) % 256
+        elif cmd == ',':
+            ensure_cell()
+            try:
+                ch = sys.stdin.read(1)
+                tape[dp] = ord(ch) if ch else 0
+            except Exception:
+                tape[dp] = 0
+        elif cmd == '[':
+            ensure_cell()
+            if tape[dp] == 0 and pc in brackets:
+                pc = brackets[pc]
+        elif cmd == ']':
+            ensure_cell()
+            if tape[dp] != 0 and pc in brackets:
+                pc = brackets[pc]
 
-                # Stabilization tracking
-                current_value = tape[dp] % 256
-                if last_committed_dot_value is not None and current_value == last_committed_dot_value:
+        # ── The three instructions the boundary changes ────────────
+
+        elif cmd == '.':
+            ensure_cell()
+            value = tape[dp] % 256
+            if not committed:
+                committed_output.append(chr(value))
+
+                # Stabilization tracking: count consecutive repeats
+                if last_output_value is not None and value == last_output_value:
                     stability_counter += 1
                 else:
                     stability_counter = 0
-                last_committed_dot_value = current_value
+                last_output_value = value
 
-                # Check for commitment boundary
+                # Boundary detected on the K-th consecutive repeat.
+                # This output is already committed (detection is
+                # retrospective); the NEXT '.' opens narration.
                 if stability_counter >= stability:
                     committed = True
                     commitment_step = steps
@@ -150,36 +185,26 @@ def run(program, stability=3, dry_run=False, seed=None, verbose=False):
                         print(f"[commit] Boundary crossed at step {steps}, "
                               f"pc={pc} (stability={stability_counter}, "
                               f"K={stability})", file=sys.stderr)
+            else:
+                # Epiphenomenal output: executes, but cannot change
+                # the committed answer. Does not count toward
+                # stabilization.
+                narration_output.append(chr(value))
 
-            elif cmd == ',':
-                ensure_cell()
-                try:
-                    ch = sys.stdin.read(1)
-                    tape[dp] = ord(ch) if ch else 0
-                except:
-                    tape[dp] = 0
-            elif cmd == '[':
-                ensure_cell()
-                if tape[dp] == 0:
-                    if pc in brackets:
-                        pc = brackets[pc]
-            elif cmd == ']':
-                ensure_cell()
-                if tape[dp] != 0:
-                    if pc in brackets:
-                        pc = brackets[pc]
-            elif cmd == '?':
-                # Pre-boundary: probe returns 0 (not yet committed)
-                ensure_cell()
-                tape[dp] = 0
-            elif cmd == '~':
-                # Reached epiphenomenon marker pre-boundary: HALT
-                # The programmer declared commitment that hasn't happened yet
+        elif cmd == '?':
+            # Probe: overwrites the current cell with the commitment
+            # state. Self-knowledge costs the cell it's stored in.
+            ensure_cell()
+            tape[dp] = 1 if committed else 0
+
+        elif cmd == '~':
+            if not committed:
+                # Premature assertion: the programmer declared
+                # commitment that hasn't occurred. Falsified — halt.
                 if verbose:
                     print(f"[commit] HALT: premature epiphenomenon marker at "
                           f"step {steps}, pc={pc}. Program declared commitment "
                           f"before it occurred.", file=sys.stderr)
-                # Return with error status
                 return (
                     ''.join(committed_output),
                     ''.join(narration_output),
@@ -187,61 +212,13 @@ def run(program, stability=3, dry_run=False, seed=None, verbose=False):
                         'committed': False,
                         'commitment_step': None,
                         'total_steps': steps,
-                        'hit_limit': steps >= max_steps,
+                        'hit_limit': False,
                         'boundary_position': None,
                         'premature_epiphenomenon': True,
                         'premature_pc': pc,
                     }
                 )
-
-        # ── Post-boundary execution (epiphenomenal) ───────────────
-
-        else:
-            # Computation continues, but output is frozen
-            if cmd == '>':
-                dp += 1
-                ensure_cell()
-            elif cmd == '<':
-                dp -= 1
-                ensure_cell()
-            elif cmd == '+':
-                ensure_cell()
-                tape[dp] = (tape[dp] + 1) % 256
-            elif cmd == '-':
-                ensure_cell()
-                tape[dp] = (tape[dp] - 1) % 256
-            elif cmd == '.':
-                # Epiphenomenal output: writes to narration stream
-                # The committed output is frozen; this is performance
-                ensure_cell()
-                ch = chr(tape[dp] % 256)
-                narration_output.append(ch)
-                # Does NOT count toward stabilization
-                # Does NOT change committed output
-            elif cmd == ',':
-                ensure_cell()
-                try:
-                    ch = sys.stdin.read(1)
-                    tape[dp] = ord(ch) if ch else 0
-                except:
-                    tape[dp] = 0
-            elif cmd == '[':
-                ensure_cell()
-                if tape[dp] == 0:
-                    if pc in brackets:
-                        pc = brackets[pc]
-            elif cmd == ']':
-                ensure_cell()
-                if tape[dp] != 0:
-                    if pc in brackets:
-                        pc = brackets[pc]
-            elif cmd == '?':
-                # Post-boundary: probe returns 1 (committed)
-                ensure_cell()
-                tape[dp] = 1
-            elif cmd == '~':
-                # Post-boundary epiphenomenon marker: no-op (correct prediction)
-                pass
+            # Post-boundary: no-op. The assertion was correct.
 
         pc += 1
         steps += 1
@@ -267,19 +244,23 @@ def main():
     )
     parser.add_argument('program', help='Path to .cm program file')
     parser.add_argument('--stability', '-K', type=int, default=3,
-                       help='Stabilization threshold (consecutive identical '
-                            'outputs before commitment). Default: 3')
+                       help='Stability threshold: an output value repeated K '
+                            'consecutive times triggers commitment (default: '
+                            '3 — i.e. commit on the 4th identical output)')
     parser.add_argument('--dry-run', action='store_true',
                        help="Show commitment analysis without running")
-    parser.add_argument('--seed', type=int, default=None,
-                       help='Random seed for reproducibility (, instruction)')
     parser.add_argument('--verbose', '-v', action='store_true',
-                       help='Show commitment events and boundary info')
+                       help='Show commitment events')
     parser.add_argument('--narration', action='store_true',
                        help='Include epiphenomenal narration in stdout, after the committed answer')
     args = parser.parse_args()
 
-    program = load_program(args.program)
+    try:
+        program = load_program(args.program)
+    except OSError as e:
+        reason = e.strerror if e.strerror else str(e)
+        print(f"error: cannot read '{args.program}': {reason}", file=sys.stderr)
+        sys.exit(1)
 
     if not program:
         print("Empty program (no valid commands found).", file=sys.stderr)
@@ -311,8 +292,6 @@ def main():
     committed, narration, meta = run(
         program,
         stability=stability,
-        dry_run=args.dry_run,
-        seed=args.seed,
         verbose=args.verbose,
     )
 
@@ -344,6 +323,11 @@ def main():
 
     if meta['hit_limit']:
         print(f"⚠ Hit step limit ({10_000_000})", file=sys.stderr)
+
+    # A falsified '~' assertion is a distinct outcome: clean runs exit 0,
+    # premature assertions exit 2 (useful for sweeps and CI).
+    if meta['premature_epiphenomenon']:
+        sys.exit(2)
 
 
 if __name__ == '__main__':
