@@ -57,7 +57,7 @@ python3 commit.py --dry-run program.cm           # analyze without executing
 ### Commitment on repeated output
 
 ```
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....
 ```
 
 Prints 'A' four times. With K=3, commits at the 4th identical output. Any further output goes to narration.
@@ -65,7 +65,7 @@ Prints 'A' four times. With K=3, commits at the 4th identical output. Any furthe
 ### Self-awareness with ?
 
 ```
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....?++++++++++++++++++++++++++++++++++++++++++++++++.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....?++++++++++++++++++++++++++++++++++++++++++++++++.
 ```
 
 Prints 'AAAA' (committed), then probes commitment state with `?` (sets cell to 1), adds 48 to get '1', outputs to narration. The program knows it has committed.

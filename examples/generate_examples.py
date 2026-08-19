@@ -74,3 +74,19 @@ with open("examples/never_commits.cm", "w") as f:
     f.write(prog)
 
 print("Generated 4 example programs")
+def gen_fizzbuzz():
+    """Real fizzbuzz 1..100: cycles digits/Fizz/Buzz, never 4 identical outputs in a row.
+    In []commit it never commits — structurally unstable output, forever genuine."""
+    def bf_char(c):
+        return '[-]' + '+' * ord(c) + '.'
+    lines = []
+    for n in range(1, 101):
+        s = 'FizzBuzz' if n % 15 == 0 else 'Fizz' if n % 3 == 0 else 'Buzz' if n % 5 == 0 else str(n)
+        lines.append(s + '\n')
+    return ''.join(bf_char(c) for c in ''.join(lines))
+
+if __name__ == '__main__':
+    import os
+    with open(os.path.join(os.path.dirname(__file__), 'fizzbuzz.cm'), 'w') as f:
+        f.write(gen_fizzbuzz())
+    print("Generated fizzbuzz.cm")

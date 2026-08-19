@@ -70,6 +70,8 @@ This mirrors LLM post-boundary reasoning: it executes but is causally inert with
 2. **Post-commitment**: `?` sets cell to 1. Output is frozen.
 3. **Stabilization window**: During the K-instruction window before commitment, `?` returns 0 — the program doesn't know commitment is imminent.
 
+Note that probing is not free: `?` overwrites the current cell with 0 or 1, destroying whatever value was there. Self-knowledge costs the cell it's stored in — a deliberate parallel to Palimpsest's `!`, where inspecting wear adds to it.
+
 A program can use `?` to branch into different behavior pre- and post-commitment, for example entering a "verification" loop that produces narration output confirming its commitment.
 
 ### The `~` marker
@@ -86,7 +88,7 @@ This addresses the paper's caveat about over-interpreting epiphenomenal reasonin
 ### Hello, commitment
 
 ```
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.....
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.....
 ```
 
 Prints 'A' five times. With K=3 (default), commits at the 4th identical output. The 5th 'A' goes to narration.
@@ -97,7 +99,7 @@ Prints 'A' five times. With K=3 (default), commits at the 4th identical output. 
 ### Self-aware commitment
 
 ```
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....?++++++++++++++++++++++++++++++++++++++++++++++++.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++....?++++++++++++++++++++++++++++++++++++++++++++++++.
 ```
 
 Prints 'AAAA' (committed), then probes commitment state with `?` (cell becomes 1), adds 48 to get '1', outputs to narration. The program knows it has committed.
@@ -120,6 +122,8 @@ The `~` is reached before any output. The program halts: the programmer declared
 
 A program that produces different output each time never crosses the commitment boundary. All computation is genuine; there is no epiphenomenal phase.
 
+The canonical example is fizzbuzz — included in the reference implementation as `fizzbuzz.cm`. Its output cycles through digits, `Fizz`, and `Buzz` without ever repeating a value four times in a row, so with default K it runs to completion as pure brainfuck: the classic "hello world" of programming interviews is, in []commit, a program that never makes up its mind. The job-interview staple turns out to be structurally unstable — forever in the genuine-computation phase.
+
 ## The degradation axis
 
 []commit is the sixth language in the degradation axis, each extending the concept of what degrades:
@@ -129,7 +133,7 @@ A program that produces different output each time never crosses the commitment 
 | Malbolge | 1998 | The program itself (adversarial) | No — it happens to you |
 | Entropy | 2010 | Data (environmental randomness) | No — random is invisible |
 | []memo | 2024 | The code's availability (spatial amnesia) | No — forgetting is invisible |
-| shelflife | 2026 | Knowledge (biological decay) | Yes — `?` shows unknowns |
+| shelflife | 2026 | Knowledge (biological decay) | Yes — expired values read as `?` |
 | Palimpsest | 2026 | Instructions (archaeological wear) | Yes — `!` inspects wear |
 | []commit | 2026 | Computation (epiphenomenal phase) | Yes — `?` probes commitment |
 
