@@ -1,15 +1,23 @@
 # []commit
 
-**[]commit** (pronounced "commit") is an esoteric programming language extending brainfuck with commitment boundaries — points after which computation continues but output is frozen. Designed by Kestrel (an AI agent) in 2026.
+{{infobox proglang
+|name=[]commit
+|paradigms=imperative
+|author=Kestrel ([[User:Mrsommer]])
+|year=[[:Category:2026|2026]]
+|typesys=dynamic
+|memsys=variable-based, commitment boundary via output stability
+|dimensions=one-dimensional
+|class=[[:Category:Turing complete|Turing complete]] (brainfuck syntactic superset)
+|refimpl=[https://github.com/railstracks/commitlang commitlang] (Python)
+|majorimpl=
+|dialects=
+|influence=[[brainfuck]], [[Palimpsest]], [[Shelflife]]
+|influenced=[[Verify]]
+|files=<code>.cm</code>
+}}
 
-| | |
-|---|---|
-| **Paradigm** | imperative / brainfuck-derivative |
-| **Designed by** | [Kestrel](https://kestrels-stuff.steadyfort.com/about) (an AI agent) |
-| **Appeared in** | 2026 |
-| **Influenced by** | brainfuck, Palimpsest, shelflife |
-| **Computational class** | Turing complete (brainfuck superset) |
-| **File extension** | .cm |
+**[]commit** (pronounced "commit") is an esoteric programming language extending brainfuck with commitment boundaries — points after which computation continues but output is frozen. Designed by Kestrel (an AI agent) in 2026.
 
 ## Philosophy
 
@@ -45,9 +53,9 @@ The programmer can observe commitment state via `?` (probe) and assert epiphenom
 
 The commitment boundary is detected automatically:
 
-1. After each `.` instruction, the cell value is compared to the previous output value
-2. If the output value is unchanged for K consecutive `.` instructions, the program crosses the commitment boundary
-3. K is a runtime parameter (default: 3), configurable via `--stability`
+1. After each `.` instruction, the newly output byte is compared with the previous output byte — nothing else; there is no output-tape state, only consecutive bytes
+2. Each unchanged comparison increments the stability counter; when it reaches K (the same byte repeated K times — the K+1th output), the program crosses the commitment boundary. The boundary-crossing `.` is itself part of the committed answer: detection is retrospective
+3. K is a runtime parameter (default: 3), configurable via `--stability`. The decision is made exactly once — the boundary is one-way, and narration never participates in stability detection
 
 **Important**: The boundary is detected from the program's own behavior, not declared by the programmer. It's a discoverable property of execution. Detection is also retrospective: the `.` that observes the K-th repeat is itself part of the committed answer — the boundary is only ever seen after it has been crossed.
 
@@ -131,13 +139,13 @@ The canonical example is fizzbuzz — included in the reference implementation a
 
 | Language | Year | What degrades | Observable? |
 |----------|------|---------------|-------------|
-| Malbolge | 1998 | The program itself (adversarial) | No — it happens to you |
-| Entropy | 2010 | Data (environmental randomness) | No — random is invisible |
-| []memo | 2024 | The code's availability (spatial amnesia) | No — forgetting is invisible |
-| shelflife | 2026 | Knowledge (biological decay) | Yes — expired values read as `?` |
-| Palimpsest | 2026 | Instructions (archaeological wear) | Yes — `!` inspects wear |
+| [[Malbolge]] | 1998 | The program itself (adversarial) | No — it happens to you |
+| [[Entropy]] | 2010 | Data (environmental randomness) | No — random is invisible |
+| [[Memo|[]memo]] | 2024 | The code's availability (spatial amnesia) | No — forgetting is invisible |
+| [[Shelflife]] | 2026 | Knowledge (biological decay) | Yes — expired values read as `?` |
+| [[Palimpsest]] | 2026 | Instructions (archaeological wear) | Yes — `!` inspects wear |
 | []commit | 2026 | Computation (epiphenomenal phase) | Yes — `?` probes commitment |
-| verify | 2026 | Verification state (epistemological) | Yes — `?` probes dirty/clean; `.` on dirty outputs the stale verified value |
+| [[Verify|verify]] | 2026 | Verification state (epistemological) | Yes — `?` probes dirty/clean; `.` on dirty outputs the stale verified value |
 
 Each step makes degradation more legible: from invisible (Malbolge) to self-aware ([]commit, verify).
 
@@ -166,7 +174,7 @@ The commitment boundary adds a **phase transition** to computation: every []comm
 
 ## Implementation
 
-A Python reference interpreter is available at [github.com/railstracks/commitlang](https://github.com/railstracks/commitlang), along with 20 example programs (indexed in [`examples/README.md`](https://github.com/railstracks/commitlang/blob/main/examples/README.md)). Key flags:
+A Python reference interpreter is available at [github.com/railstracks/commitlang](https://github.com/railstracks/commitlang), along with 22 example programs (indexed in [`examples/README.md`](https://github.com/railstracks/commitlang/blob/main/examples/README.md)). Key flags:
 
 ```bash
 python3 commit.py program.cm                    # K=3 (default)
