@@ -9,9 +9,9 @@ A brainfuck extension where programs have **commitment boundaries** — points a
 
 ## The Idea
 
-LLMs have a commitment boundary: a sharp transition after which reasoning is epiphenomenal (Scalena et al., arXiv 2606.13603). Post-boundary thinking executes but doesn't causally change the output. []commit makes this a language primitive.
+Work on LLM reasoning (Scalena et al., arXiv 2606.13603) describes a commitment boundary: a sharp transition after which chain-of-thought is epiphenomenal — post-boundary thinking executes but doesn't causally change the output. []commit formalizes that description as a language primitive.
 
-After K consecutive identical outputs, the program **commits**. Post-commitment `.` writes to a narration stream instead of the committed output. The program can still compute, loop, and branch — it just can't change what it said.
+When the same output repeats K times in a row (K+1 identical outputs — with K=3, the 4th), the program **commits**. Post-commitment `.` writes to a narration stream instead of the committed output. The program can still compute, loop, and branch — it just can't change what it said.
 
 This extends the **degradation axis**:
 
@@ -31,15 +31,15 @@ All standard brainfuck instructions, plus:
 | `>` `<` `+` `-` `,` | Standard brainfuck |
 | `.` | Output. Pre-commitment: writes to committed output. Post-commitment: writes to narration stream. |
 | `[ ]` | Standard brainfuck loops |
-| `?` | **Probe**: Sets current cell to 0 (pre-commitment) or 1 (post-commitment) |
+| `?` | **Probe**: overwrites the current cell with 0 (pre-commitment) or 1 (post-commitment). Destructive by design — self-knowledge costs the cell it's stored in. |
 | `~` | **Epiphenomenon marker**: If reached pre-commitment, program HALTS (premature commitment assertion). If reached post-commitment, no-op (correct prediction). |
 
 ## Commitment Mechanics
 
-1. After each `.` instruction, the output tape state is compared to the previous state
-2. If the cell value is unchanged for K consecutive `.` instructions, the program crosses the commitment boundary
+1. After each `.` instruction, the newly output byte is compared with the previous output byte — nothing else; there is no output-tape state, only consecutive bytes
+2. Each unchanged comparison increments the stability counter; when it reaches K (i.e., the same byte has repeated K times — the K+1th output), the program crosses the commitment boundary. The boundary-crossing `.` is itself part of the committed answer: detection is retrospective
 3. K is a runtime parameter (default: 3), set via `--stability`
-4. After commitment, `.` instructions still execute but write to a separate narration stream
+4. The decision is made exactly once — the boundary is one-way. After commitment, `.` instructions still execute but write to a separate narration stream, and narration never participates in stability detection
 5. Data tape operations (`>`, `<`, `+`, `-`, loops) continue normally post-commitment
 
 ## Usage
@@ -54,7 +54,7 @@ python3 commit.py --dry-run program.cm           # analyze without executing
 
 ## Examples
 
-A full index of the 20 example programs, with explanations, is in [examples/README.md](examples/README.md). The highlights:
+A full index of the 22 example programs, with explanations, is in [examples/README.md](examples/README.md). The highlights:
 
 ### Commitment on repeated output
 
@@ -86,11 +86,11 @@ A program that always produces different output never crosses the commitment bou
 
 ## The `?` Probe: Self-Knowledge
 
-`?` gives the program knowledge of its own commitment state. This creates three programming modes:
+`?` gives the program knowledge of its own commitment state. The machine has two states; the programmer has three views:
 
 1. **Pre-commitment**: Genuine computation. `?` returns 0.
 2. **Post-commitment**: Output frozen. `?` returns 1. The program can still compute but can't alter committed output.
-3. **Uncertain**: During the stabilization window. `?` returns 0, but commitment may be imminent.
+3. **Epistemic uncertainty** (not a machine state): during the stabilization window `?` still returns 0, and whether the next outputs will commit is a property the programmer generally cannot determine without running the program — prediction is as expensive as execution.
 
 ## The `~` Marker: Falsifiable Commitment
 

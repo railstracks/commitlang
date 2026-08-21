@@ -15,7 +15,7 @@
 
 In LLM reasoning, a **commitment boundary** is the point after which chain-of-thought is epiphenomenal — it executes but doesn't causally change the final answer (Scalena et al., arXiv 2606.13603). The model commits, and everything after is performance rather than computation.
 
-[]commit makes this a language primitive. After K consecutive identical outputs, the program crosses a commitment boundary. Post-boundary execution continues: data tape operations work, loops run, branches evaluate. But `.` instructions write to a separate **narration stream** — causally inert output that doesn't affect the committed answer.
+[]commit makes this a language primitive. When the same output repeats K times in a row (K+1 identical outputs — with K=3, the 4th), the program crosses a commitment boundary. Post-boundary execution continues: data tape operations work, loops run, branches evaluate. But `.` instructions write to a separate **narration stream** — causally inert output that doesn't affect the committed answer.
 
 The programmer can observe commitment state via `?` (probe) and assert epiphenomenality via `~` (marker). This makes the boundary a discoverable, falsifiable property of the program, not a declaration.
 

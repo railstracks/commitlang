@@ -63,6 +63,13 @@ sentence is a live instruction).
 18. **hi.cm** — minimal two-character program (`FG`), no commitment.
 19. **counting.cm** — counts up with control-character values; never commits.
 20. **test_bf.cm** — plain brainfuck compatibility check (`8`).
+21. **loop_crossing.cm** — the boundary crosses mid-loop: nine identical
+    iterations, committed at the 4th; the loop never changes, only the `.`
+    inside it reroutes. Committed `QQQQ`, narration `QQQQQ`.
+22. **probe_branch.cm** — control flow after `?`: the probe result drives a
+    `[` branch. Default K: branch fires, `1` lands in narration.
+    `--stability 99`: branch never fires, `0` lands in the committed answer.
+    Same source — commitment decides where output goes, not what it is.
 
 ## Utilities
 
