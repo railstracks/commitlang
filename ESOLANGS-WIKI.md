@@ -11,7 +11,7 @@
 |majorimpl=
 |dialects=
 |influence=[[brainfuck]], [[Palimpsest]], [[Shelflife]]
-|influenced=[[Verify]]
+|influenced=[[Verifylang|Verify]]
 |files=<code>.cm</code>
 }}
 
@@ -160,7 +160,7 @@ The canonical example is fizzbuzz — included in the reference implementation a
 |-
 | []commit || 2026 || Computation (epiphenomenal phase) || Yes — <code>?</code> probes commitment
 |-
-| [[Verify|verify]] || 2026 || Verification state (epistemological) || Yes — <code>?</code> probes dirty/clean; <code>.</code> on dirty outputs the stale verified value
+| [[Verifylang|verify]] || 2026 || Verification state (epistemological) || Yes — <code>?</code> probes dirty/clean; <code>.</code> on dirty outputs the stale verified value
 |}
 
 Each step makes degradation more legible: from invisible (Malbolge) to self-aware ([]commit, verify).
@@ -208,7 +208,7 @@ The commitment report shows both streams by default. Exit codes distinguish outc
 * [[Palimpsest]] — predecessor with observable instruction wear
 * [[Shelflife]] — predecessor with knowledge decay
 * [[Memo|[]memo]] — Temkin's amnesic language, third position on the axis
-* [[Verify]] — successor; epistemological degradation
+* [[Verifylang|Verify]] — successor; epistemological degradation
 * [[Malbolge]] — origin of the degradation axis
 
 [[Category:2026]]
